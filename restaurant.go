@@ -22,7 +22,7 @@ func main() {
 	}
 
 	app := fiber.New()
-	app.Get("/", func(c *fiber.Ctx) error {
+	app.Post("/", func(c *fiber.Ctx) error {
 
 		EntranceStr := c.Query("Entrance", "0")
 		ExitStr := c.Query("Exit", "0")
