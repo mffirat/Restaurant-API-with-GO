@@ -52,7 +52,7 @@ func main() {
 		}
 		err = client.Set(ctx, "currentCount", current, 0).Err()
 		if err != nil {
-			return c.JSON(fiber.Map{"error": "Write error error for Redis"})
+			return c.JSON(fiber.Map{"error": "Write  error for Redis"})
 		}
 		return c.JSON(fiber.Map{
 			"message ": "Customer nums updated", "current ": change,
