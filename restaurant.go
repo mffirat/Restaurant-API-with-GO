@@ -38,21 +38,36 @@ func main() {
 
 		var change = Entrance - Exit
 
-		currentStr, _ := client.Get(ctx, "currentCount").Result()
-		current, _ := strconv.Atoi(currentStr)
-
+		currentStr, err := client.Get(ctx, "currentCount").Result()
+		if err != nil {
+			return c.JSON(fiber.Map{"error": "Read error for Redis"})
+		}
+		current, err := strconv.Atoi(currentStr)
+		if err != nil {
+			return c.JSON(fiber.Map{"error": "Value conversation error for Redis"})
+		}
 		current += change
 		if current < 0 {
 			current = 0
 		}
-		client.Set(ctx, "currentCount", current, 0)
+		err = client.Set(ctx, "currentCount", current, 0).Err()
+		if err != nil {
+			return c.JSON(fiber.Map{"error": "Write  error for Redis"})
+		}
 		return c.JSON(fiber.Map{
 			"message ": "Customer nums updated", "current ": change,
 		})
 	})
+
 	app.Get("/count", func(c *fiber.Ctx) error {
-		countStr, _ := client.Get(ctx, "currentCount").Result()
-		count, _ := strconv.Atoi(countStr)
+		countStr, err := client.Get(ctx, "currentCount").Result()
+		if err != nil {
+			return c.JSON(fiber.Map{"error": "Read error for Redis"})
+		}
+		count, err := strconv.Atoi(countStr)
+		if err != nil {
+			return c.JSON(fiber.Map{"error": "Value conversation error for Redis"})
+		}
 
 		return c.JSON(fiber.Map{
 			"Count": count,
