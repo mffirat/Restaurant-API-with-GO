@@ -11,6 +11,18 @@ import (
 var ctx = context.Background()
 var client *redis.Client
 
+type FloorCount struct {
+	Floor1 int `json:"floor1"`
+	Floor2 int `json:"floor2"`
+	Floor3 int `json:"floor3"`
+	Total  int `json:"total"`
+}
+type UpdateResponse struct {
+	Message string `json:"message"`
+	Floor   int    `json:"floor"`
+	Current int    `json:"current"`
+}
+
 func main() {
 	client = redis.NewClient(&redis.Options{
 		Addr: "localhost:6379",
@@ -59,12 +71,13 @@ func main() {
 				return c.JSON(fiber.Map{"error": "Redis DECRBY error: " + err.Error()})
 			}
 		}
+		response := UpdateResponse{
+			Message: "Customer nums updated",
+			Floor:   Floor,
+			Current: change,
+		}
 
-		return c.JSON(fiber.Map{
-			"message ": "Customer nums updated",
-			"floor":    Floor,
-			"current ": change,
-		})
+		return c.JSON(response)
 	})
 
 	app.Get("/count", func(c *fiber.Ctx) error {
@@ -92,12 +105,15 @@ func main() {
 		if err != nil {
 			return c.JSON(fiber.Map{"error": "Value conversation error for Redis: " + err.Error()})
 		}
-		return c.JSON(fiber.Map{
-			"floor1": count1,
-			"floor2": count2,
-			"floor3": count3,
-			"total":  count1 + count2 + count3,
-		})
+
+		response := FloorCount{
+			Floor1: count1,
+			Floor2: count2,
+			Floor3: count3,
+			Total:  count1 + count2 + count3,
+		}
+
+		return c.JSON(response)
 	})
 	app.Listen(":8080")
 
