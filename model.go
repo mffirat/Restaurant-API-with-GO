@@ -1,15 +1,18 @@
 package main
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Customer struct {
-	ID        uint       `gorm:"primaryKey" json:"id"`
+	gorm.Model
 	Gender    string     `json:"gender"`
 	AgeGroup  string     `json:"age_group"`
 	Floor     int        `json:"floor"`
 	Payment   float64    `json:"payment"`
-	CreatedAt time.Time  `json:"created_at"`
-	UpdatedAt time.Time  `json:"updated_at"`
+	EnteredAt time.Time  `json:"entered_at"`
 	ExitedAt  *time.Time `json:"exited_at"`
 }
 

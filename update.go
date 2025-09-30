@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"strconv"
 	"time"
 
@@ -29,11 +30,13 @@ func UpdateHandler(c *fiber.Ctx) error {
 			AgeGroup:  AgeGroup,
 			Floor:     Floor,
 			Payment:   0,
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
+			EnteredAt: time.Now(),
 			ExitedAt:  nil,
 		}
-		DB.Create(&customer)
+		if err := DB.Create(&customer).Error; err != nil {
+			log.Println("Failed to create customer:", err)
+			return c.JSON(fiber.Map{"error": "Internal Server Error"})
+		}
 
 		_, err := client.IncrBy(ctx, key, 1).Result()
 		if err != nil {
@@ -52,7 +55,7 @@ func UpdateHandler(c *fiber.Ctx) error {
 			return c.JSON(fiber.Map{"error": "Invalid ID"})
 		}
 		payment, err := strconv.ParseFloat(paymentStr, 64)
-		if err != nil || id <= 0 {
+		if err != nil || payment <= 0 {
 			return c.JSON(fiber.Map{"error": "Invalid Payment"})
 		}
 
@@ -65,7 +68,10 @@ func UpdateHandler(c *fiber.Ctx) error {
 		now := time.Now()
 		customer.Payment = payment
 		customer.ExitedAt = &now
-		DB.Save(&customer)
+		if err := DB.Save(&customer).Error; err != nil {
+			log.Println("Failed to save customer:", err)
+			return c.JSON(fiber.Map{"error": "Internal Server Error"})
+		}
 
 		_, err = client.DecrBy(ctx, key, 1).Result()
 		if err != nil {

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -12,7 +14,8 @@ func TotalCustomersHandler(c *fiber.Ctx) error {
 	if err := DB.Model(&Customer{}).
 		Where("created_at BETWEEN ? AND ?", startDate, endDate).
 		Count(&count).Error; err != nil {
-		return c.JSON(fiber.Map{"error": err.Error()})
+		log.Println("Database error:", err)
+		return c.JSON(fiber.Map{"error": "Internal Server Error"})
 	}
 
 	return c.JSON(fiber.Map{"total_customers": count})
