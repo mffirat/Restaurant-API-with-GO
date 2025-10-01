@@ -8,36 +8,40 @@ import (
 
 func CountHandler(c *fiber.Ctx) error {
 
-	countStr1, err := client.Get(ctx, "floor:1").Result()
-	if err != nil {
-		return c.JSON(fiber.Map{"error": "Read error for Redis: " + err.Error()})
-	}
-	count1, err := strconv.Atoi(countStr1)
-	if err != nil {
-		return c.JSON(fiber.Map{"error": "Value conversation error for Redis: " + err.Error()})
-	}
-	countStr2, err := client.Get(ctx, "floor:2").Result()
-	if err != nil {
-		return c.JSON(fiber.Map{"error": "Read error for Redis: " + err.Error()})
-	}
-	count2, err := strconv.Atoi(countStr2)
-	if err != nil {
-		return c.JSON(fiber.Map{"error": "Value conversation error for Redis: " + err.Error()})
-	}
-	countStr3, err := client.Get(ctx, "floor:3").Result()
-	if err != nil {
-		return c.JSON(fiber.Map{"error": "Read error for Redis: " + err.Error()})
-	}
-	count3, err := strconv.Atoi(countStr3)
-	if err != nil {
-		return c.JSON(fiber.Map{"error": "Value conversation error for Redis: " + err.Error()})
+	var floor1, floor2, floor3 int
+	var total int
+
+	for i := 1; i <= 3; i++ {
+		key := "floor:" + strconv.Itoa(i)
+		valStr, err := client.Get(ctx, key).Result()
+		var say int
+		if err != nil || valStr == "" {
+			var dbCount int64
+			DB.Model(&Customer{}).Where("floor = ? AND exited_at IS NULL", i).Count(&dbCount)
+			say = int(dbCount)
+		} else {
+			say, err = strconv.Atoi(valStr)
+			if err != nil {
+				return c.JSON(fiber.Map{"error": "Invalid say"})
+			}
+		}
+
+		if i == 1 {
+			floor1 = say
+		} else if i == 2 {
+			floor2 = say
+		} else {
+			floor3 = say
+		}
 	}
 
+	total = floor1 + floor2 + floor3
+
 	response := FloorCount{
-		Floor1: count1,
-		Floor2: count2,
-		Floor3: count3,
-		Total:  count1 + count2 + count3,
+		Floor1: floor1,
+		Floor2: floor2,
+		Floor3: floor3,
+		Total:  total,
 	}
 
 	return c.JSON(response)

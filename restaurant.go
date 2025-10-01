@@ -2,28 +2,28 @@ package main
 
 import (
 	"context"
+	"log"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/redis/go-redis/v9"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 var ctx = context.Background()
 var client *redis.Client
-
-type FloorCount struct {
-	Floor1 int `json:"floor1"`
-	Floor2 int `json:"floor2"`
-	Floor3 int `json:"floor3"`
-	Total  int `json:"total"`
-}
-type UpdateResponse struct {
-	Message string `json:"message"`
-	Floor   int    `json:"floor"`
-	Current int    `json:"current"`
-}
+var DB *gorm.DB
 
 func main() {
+	dsn := "host=localhost user=postgres password=1234 dbname=mydb port=5432 sslmode=disable TimeZone=Asia/Istanbul"
+	var err error
+	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatal("Failed to connect to database")
+	}
+	DB.AutoMigrate(&Customer{})
+
 	client = redis.NewClient(&redis.Options{
 		Addr: "localhost:6379",
 	})
@@ -39,6 +39,9 @@ func main() {
 	app := fiber.New()
 	app.Post("/", UpdateHandler)
 	app.Get("/count", CountHandler)
+	app.Get("/total_customers", TotalCustomersHandler)
+	app.Get("/children", ChildrenHandler)
+	app.Get("/total_income", TotalIncomeHandler)
 	app.Listen(":8080")
 
 }
