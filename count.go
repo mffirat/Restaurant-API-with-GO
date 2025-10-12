@@ -1,43 +1,30 @@
 package main
 
 import (
-	"strconv"
+	"Go2/model"
+	"Go2/repository/redis"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-func CountHandler(c *fiber.Ctx) error {
+func CountHandler(c *fiber.Ctx, redisRepo redis.FloorRepoInterface) error {
 
-	var floor1, floor2, floor3 int
-	var total int
-
-	for i := 1; i <= 3; i++ {
-		key := "floor:" + strconv.Itoa(i)
-		valStr, err := client.Get(ctx, key).Result()
-		var say int
-		if err != nil || valStr == "" {
-			var dbCount int64
-			DB.Model(&Customer{}).Where("floor = ? AND exited_at IS NULL", i).Count(&dbCount)
-			say = int(dbCount)
-		} else {
-			say, err = strconv.Atoi(valStr)
-			if err != nil {
-				return c.JSON(fiber.Map{"error": "Invalid say"})
-			}
-		}
-
-		if i == 1 {
-			floor1 = say
-		} else if i == 2 {
-			floor2 = say
-		} else {
-			floor3 = say
-		}
+	floor1, err := redisRepo.GetFloorCount(1)
+	if err != nil {
+		return c.JSON(fiber.Map{"error": "Invalid say"})
 	}
+	floor2, err := redisRepo.GetFloorCount(2)
+	if err != nil {
+		return c.JSON(fiber.Map{"error": "Invalid say"})
+	}
+	floor3, err := redisRepo.GetFloorCount(3)
+	if err != nil {
+		return c.JSON(fiber.Map{"error": "Invalid say"})
+	}
+	
+	total := floor1 + floor2 + floor3
 
-	total = floor1 + floor2 + floor3
-
-	response := FloorCount{
+	response := model.FloorCount{
 		Floor1: floor1,
 		Floor2: floor2,
 		Floor3: floor3,
