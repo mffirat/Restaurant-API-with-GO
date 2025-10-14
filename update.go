@@ -5,10 +5,14 @@ import (
 	"strconv"
 	"time"
 
+	"Go2/model"
+	
+
 	"github.com/gofiber/fiber/v2"
 )
 
-func UpdateHandler(c *fiber.Ctx) error {
+
+func UpdateHandler(c *fiber.Ctx, repo CustomerRepoInterface, redisRepo FloorRepoInterface) error {
 
 	action := c.Query("action", "enter")
 	FloorStr := c.Query("Floor", "1")
@@ -17,15 +21,15 @@ func UpdateHandler(c *fiber.Ctx) error {
 	idStr := c.Query("id", "0")
 	paymentStr := c.Query("Payment", "0")
 	Floor, err := strconv.Atoi(FloorStr)
-	if err != nil || Floor < 1 || 3 < Floor {
-		return c.JSON(fiber.Map{"error": "Invalid value for Floor: " + err.Error()})
+	if err != nil || Floor < 1 || Floor > 3 {
+		return c.JSON(fiber.Map{"error": "Invalid value for Floor: "})
 
 	}
-	key := "floor:" + strconv.Itoa(Floor)
+	
 
 	if action == "enter" {
 
-		customer := Customer{
+		customer := &model.Customer{
 			Gender:    Gender,
 			AgeGroup:  AgeGroup,
 			Floor:     Floor,
@@ -33,14 +37,13 @@ func UpdateHandler(c *fiber.Ctx) error {
 			EnteredAt: time.Now(),
 			ExitedAt:  nil,
 		}
-		if err := DB.Create(&customer).Error; err != nil {
+		if err := repo.CreateCustomer(customer); err != nil {
 			log.Println("Failed to create customer:", err)
 			return c.JSON(fiber.Map{"error": "Internal Server Error"})
 		}
 
-		_, err := client.IncrBy(ctx, key, 1).Result()
-		if err != nil {
-			return c.JSON(fiber.Map{"error": "Redis INCRBY error: " + err.Error()})
+		if err := redisRepo.IncreaseFloorCount(Floor); err != nil {
+			return c.JSON(fiber.Map{"error": "Redis INCRBY error: "})
 		}
 
 		return c.JSON(fiber.Map{
@@ -59,23 +62,20 @@ func UpdateHandler(c *fiber.Ctx) error {
 			return c.JSON(fiber.Map{"error": "Invalid Payment"})
 		}
 
-		var customer Customer
-		result := DB.First(&customer, id)
-		if result.Error != nil {
+		customer, err := repo.GetCustomerByID(uint(id))
+		if err != nil {
 			return c.JSON(fiber.Map{"error": "Customer not found"})
 		}
 
 		now := time.Now()
 		customer.Payment = payment
 		customer.ExitedAt = &now
-		if err := DB.Save(&customer).Error; err != nil {
-			log.Println("Failed to save customer:", err)
+		if err := repo.UpdateCustomer(customer); err != nil {
 			return c.JSON(fiber.Map{"error": "Internal Server Error"})
 		}
 
-		_, err = client.DecrBy(ctx, key, 1).Result()
-		if err != nil {
-			return c.JSON(fiber.Map{"error": "Redis DECRBY error: " + err.Error()})
+		if err := redisRepo.DecreaseFloorCount(customer.Floor); err != nil {
+			return c.JSON(fiber.Map{"error": "Redis DECRBY error: "})
 		}
 
 		return c.JSON(fiber.Map{
