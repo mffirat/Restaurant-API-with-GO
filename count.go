@@ -2,6 +2,7 @@ package main
 
 import (
 	"Go2/model"
+	
 	"Go2/repository/redis"
 
 	"github.com/gofiber/fiber/v2"
