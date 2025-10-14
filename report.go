@@ -2,12 +2,12 @@ package main
 
 import (
 	
-	"Go2/repository/postgresql"
+	
 
 	"github.com/gofiber/fiber/v2"
 )
 
-func TotalCustomersHandler(c *fiber.Ctx, repo postgresql.CustomerRepoInterface) error {
+func TotalCustomersHandler(c *fiber.Ctx, repo CustomerRepoInterface) error {
 	startDate := c.Query("start")
 	endDate := c.Query("end")
 
@@ -19,7 +19,7 @@ func TotalCustomersHandler(c *fiber.Ctx, repo postgresql.CustomerRepoInterface) 
 	return c.JSON(fiber.Map{"total_customers": count})
 }
 
-func ChildrenHandler(c *fiber.Ctx, repo postgresql.CustomerRepoInterface) error {
+func ChildrenHandler(c *fiber.Ctx, repo CustomerRepoInterface) error {
 	startDate := c.Query("start")
 	endDate := c.Query("end")
 
@@ -31,7 +31,7 @@ func ChildrenHandler(c *fiber.Ctx, repo postgresql.CustomerRepoInterface) error 
 	return c.JSON(fiber.Map{"children_count": count})
 }
 
-func TotalIncomeHandler(c *fiber.Ctx, repo postgresql.CustomerRepoInterface) error {
+func TotalIncomeHandler(c *fiber.Ctx, repo CustomerRepoInterface) error {
 	startDate := c.Query("start")
 	endDate := c.Query("end")
 

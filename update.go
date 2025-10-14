@@ -6,14 +6,13 @@ import (
 	"time"
 
 	"Go2/model"
-	"Go2/repository/postgresql"
-	"Go2/repository/redis"
+	
 
 	"github.com/gofiber/fiber/v2"
 )
 
 
-func UpdateHandler(c *fiber.Ctx, repo postgresql.CustomerRepoInterface, redisRepo redis.FloorRepoInterface) error {
+func UpdateHandler(c *fiber.Ctx, repo CustomerRepoInterface, redisRepo FloorRepoInterface) error {
 
 	action := c.Query("action", "enter")
 	FloorStr := c.Query("Floor", "1")
