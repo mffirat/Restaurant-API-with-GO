@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	dsn := "host=localhost user=postgres password=1234 dbname=mydb port=5432 sslmode=disable TimeZone=Asia/Istanbul"
+	dsn := "host=postgres user=postgres password=1234 dbname=mydb port=5432 sslmode=disable TimeZone=Asia/Istanbul"
 	var err error
 	DB, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
@@ -24,7 +24,7 @@ func main() {
 	DB.AutoMigrate(&model.Customer{})
 
 	client := redisClient.NewClient(&redisClient.Options{
-		Addr: "localhost:6379",
+		Addr: "redis:6379",
 	})
 
 	customerRepo := postgresql.NewCustomerRepo(DB)
