@@ -13,6 +13,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
       POSTGRES_DB: mydb
+      POSTGRES_PORT: 5432
       REDIS_ADDR: redis:6379
 
   postgres:

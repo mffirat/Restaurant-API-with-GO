@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"os"
 
 	"Go2/model"
 	"Go2/repository/postgresql"
@@ -15,7 +17,21 @@ import (
 )
 
 func main() {
-	dsn := "host=postgres user=postgres password=1234 dbname=mydb port=5432 sslmode=disable TimeZone=Asia/Istanbul"
+	host := os.Getenv("POSTGRES_HOST")
+	user := os.Getenv("POSTGRES_USER")
+	password := os.Getenv("POSTGRES_PASSWORD")
+	dbname := os.Getenv("POSTGRES_DB")
+	port := os.Getenv("POSTGRES_PORT")
+
+	if host == "" || user == "" || password == "" || dbname == "" || port == "" {
+		log.Fatal("One or more required environment variables are not set")
+	}
+
+	dsn := fmt.Sprintf(
+		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Istanbul",
+		host, user, password, dbname, port,
+	)
+
 	var err error
 	DB, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
@@ -24,7 +40,7 @@ func main() {
 	DB.AutoMigrate(&model.Customer{})
 
 	client := redisClient.NewClient(&redisClient.Options{
-		Addr: "redis:6379",
+		Addr: os.Getenv("REDIS_ADDR"),
 	})
 
 	customerRepo := postgresql.NewCustomerRepo(DB)
