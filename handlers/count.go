@@ -1,14 +1,14 @@
-package main
+package handlers
 
 import (
 	"Go2/model"
 	
-	
+	"Go2/interfaces"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-func CountHandler(c *fiber.Ctx, redisRepo FloorRepoInterface) error {
+func CountHandler(c *fiber.Ctx, redisRepo interfaces.FloorRepoInterface) error {
 
 	floor1, err := redisRepo.GetFloorCount(1)
 	if err != nil {

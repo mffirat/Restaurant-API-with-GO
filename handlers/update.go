@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"log"
@@ -6,13 +6,14 @@ import (
 	"time"
 
 	"Go2/model"
+	"Go2/interfaces"
 	
 
 	"github.com/gofiber/fiber/v2"
 )
 
 
-func UpdateHandler(c *fiber.Ctx, repo CustomerRepoInterface, redisRepo FloorRepoInterface) error {
+func UpdateHandler(c *fiber.Ctx, repo interfaces.CustomerRepoInterface, redisRepo interfaces.FloorRepoInterface) error {
 
 	action := c.Query("action", "enter")
 	FloorStr := c.Query("Floor", "1")

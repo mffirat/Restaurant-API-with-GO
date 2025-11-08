@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"Go2/handlers"
 	"Go2/model"
 	"Go2/repository/postgresql"
 	"Go2/repository/redis"
@@ -50,19 +51,19 @@ func main() {
 
 	app.Post("/", func(c *fiber.Ctx) error {
 
-		return UpdateHandler(c, customerRepo, floorRepo)
+		return handlers.UpdateHandler(c, customerRepo, floorRepo)
 	})
 	app.Get("/count", func(c *fiber.Ctx) error {
-		return CountHandler(c, floorRepo)
+		return handlers.CountHandler(c, floorRepo)
 	})
 	app.Get("/total_customers", func(c *fiber.Ctx) error {
-		return TotalCustomersHandler(c, customerRepo)
+		return handlers.TotalCustomersHandler(c, customerRepo)
 	})
 	app.Get("/children", func(c *fiber.Ctx) error {
-		return ChildrenHandler(c, customerRepo)
+		return handlers.ChildrenHandler(c, customerRepo)
 	})
 	app.Get("/total_income", func(c *fiber.Ctx) error {
-		return TotalIncomeHandler(c, customerRepo)
+		return handlers.TotalIncomeHandler(c, customerRepo)
 	})
 
 	log.Fatal(app.Listen(":8000"))
