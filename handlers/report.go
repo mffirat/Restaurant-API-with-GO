@@ -1,13 +1,13 @@
-package main
+package handlers
 
 import (
 	
-	
+	"Go2/interfaces"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-func TotalCustomersHandler(c *fiber.Ctx, repo CustomerRepoInterface) error {
+func TotalCustomersHandler(c *fiber.Ctx, repo interfaces.CustomerRepoInterface) error {
 	startDate := c.Query("start")
 	endDate := c.Query("end")
 
@@ -19,7 +19,7 @@ func TotalCustomersHandler(c *fiber.Ctx, repo CustomerRepoInterface) error {
 	return c.JSON(fiber.Map{"total_customers": count})
 }
 
-func ChildrenHandler(c *fiber.Ctx, repo CustomerRepoInterface) error {
+func ChildrenHandler(c *fiber.Ctx, repo interfaces.CustomerRepoInterface) error {
 	startDate := c.Query("start")
 	endDate := c.Query("end")
 
@@ -31,7 +31,7 @@ func ChildrenHandler(c *fiber.Ctx, repo CustomerRepoInterface) error {
 	return c.JSON(fiber.Map{"children_count": count})
 }
 
-func TotalIncomeHandler(c *fiber.Ctx, repo CustomerRepoInterface) error {
+func TotalIncomeHandler(c *fiber.Ctx, repo interfaces.CustomerRepoInterface) error {
 	startDate := c.Query("start")
 	endDate := c.Query("end")
 
