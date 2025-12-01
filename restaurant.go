@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-
+	"Go2/domain"
 	"Go2/handlers"
 	"Go2/model"
 	"Go2/repository/postgresql"
@@ -47,23 +47,25 @@ func main() {
 	customerRepo := postgresql.NewCustomerRepo(DB)
 	floorRepo := redis.NewFloorRepo(client)
 
+	service :=domain.NewDomainService(customerRepo, floorRepo)
+
 	app := fiber.New()
 
 	app.Post("/", func(c *fiber.Ctx) error {
 
-		return handlers.UpdateHandler(c, customerRepo, floorRepo)
+		return handlers.UpdateHandler(c, service)
 	})
 	app.Get("/count", func(c *fiber.Ctx) error {
-		return handlers.CountHandler(c, floorRepo)
+		return handlers.CountHandler(c, service)
 	})
 	app.Get("/total_customers", func(c *fiber.Ctx) error {
-		return handlers.TotalCustomersHandler(c, customerRepo)
+		return handlers.TotalCustomersHandler(c, service)
 	})
 	app.Get("/children", func(c *fiber.Ctx) error {
-		return handlers.ChildrenHandler(c, customerRepo)
+		return handlers.ChildrenHandler(c, service)
 	})
 	app.Get("/total_income", func(c *fiber.Ctx) error {
-		return handlers.TotalIncomeHandler(c, customerRepo)
+		return handlers.TotalIncomeHandler(c, service)
 	})
 
 	log.Fatal(app.Listen(":8000"))
