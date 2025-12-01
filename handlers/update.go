@@ -38,7 +38,11 @@ func UpdateHandler(c *fiber.Ctx,  service *domain.DomainService) error {
 		if err := service.ExitCustomer(uint(id), payment); err != nil {
 			return c.JSON(fiber.Map{"error": "could not exit"})
 		}
-		return c.JSON(fiber.Map{"message": "Customer exited"})
+		return c.JSON(fiber.Map{
+			"message":  "Customer exited",
+			"id":       id,
+			"payment":  payment,
+		})
 	}
 
 	return c.JSON(fiber.Map{"error": "Invalid action"})
