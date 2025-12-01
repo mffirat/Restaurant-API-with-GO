@@ -1,89 +1,47 @@
 package handlers
 
 import (
-	"log"
+	
 	"strconv"
-	"time"
+	
 
-	"Go2/model"
-	"Go2/interfaces"
+	
+	"Go2/domain"
 	
 
 	"github.com/gofiber/fiber/v2"
 )
 
 
-func UpdateHandler(c *fiber.Ctx, repo interfaces.CustomerRepoInterface, redisRepo interfaces.FloorRepoInterface) error {
+func UpdateHandler(c *fiber.Ctx,  service *domain.DomainService) error {
 
 	action := c.Query("action", "enter")
-	FloorStr := c.Query("Floor", "1")
+	FloorStr,err := strconv.Atoi(c.Query("Floor", "1"))
+	if err!=nil{
+		return c.JSON(fiber.Map{"error": "Invalid floor number"})
+	}
 	Gender := c.Query("Gender", "unknown")
 	AgeGroup := c.Query("AgeGroup", "adult")
-	idStr := c.Query("id", "0")
-	paymentStr := c.Query("Payment", "0")
-	Floor, err := strconv.Atoi(FloorStr)
-	if err != nil || Floor < 1 || Floor > 3 {
-		return c.JSON(fiber.Map{"error": "Invalid value for Floor: "})
-
-	}
 	
-
 	if action == "enter" {
-
-		customer := &model.Customer{
-			Gender:    Gender,
-			AgeGroup:  AgeGroup,
-			Floor:     Floor,
-			Payment:   0,
-			EnteredAt: time.Now(),
-			ExitedAt:  nil,
-		}
-		if err := repo.CreateCustomer(customer); err != nil {
-			log.Println("Failed to create customer:", err)
-			return c.JSON(fiber.Map{"error": "Internal Server Error"})
-		}
-
-		if err := redisRepo.IncreaseFloorCount(Floor); err != nil {
-			return c.JSON(fiber.Map{"error": "Redis INCRBY error: "})
-		}
-
+		customer,_ := service.EnterCustomer(Gender, AgeGroup, FloorStr)
+		
 		return c.JSON(fiber.Map{
 			"message": "Customer entered",
 			"id":      customer.ID,
-			"floor":   Floor,
 		})
-	} else if action == "exit" {
+	}
 
-		id, err := strconv.Atoi(idStr)
-		if err != nil || id <= 0 {
-			return c.JSON(fiber.Map{"error": "Invalid ID"})
+	if action == "exit" {
+		id, _ := strconv.Atoi(c.Query("id", "0"))
+		payment, _ := strconv.ParseFloat(c.Query("Payment", "0"), 64)
+		if err := service.ExitCustomer(uint(id), payment); err != nil {
+			return c.JSON(fiber.Map{"error": "could not exit"})
 		}
-		payment, err := strconv.ParseFloat(paymentStr, 64)
-		if err != nil || payment <= 0 {
-			return c.JSON(fiber.Map{"error": "Invalid Payment"})
-		}
-
-		customer, err := repo.GetCustomerByID(uint(id))
-		if err != nil {
-			return c.JSON(fiber.Map{"error": "Customer not found"})
-		}
-
-		now := time.Now()
-		customer.Payment = payment
-		customer.ExitedAt = &now
-		if err := repo.UpdateCustomer(customer); err != nil {
-			return c.JSON(fiber.Map{"error": "Internal Server Error"})
-		}
-
-		if err := redisRepo.DecreaseFloorCount(customer.Floor); err != nil {
-			return c.JSON(fiber.Map{"error": "Redis DECRBY error: "})
-		}
-
 		return c.JSON(fiber.Map{
 			"message":  "Customer exited",
 			"id":       id,
 			"payment":  payment,
-			"exitedAt": now,
 		})
 	}
 
