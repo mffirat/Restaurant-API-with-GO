@@ -1,20 +1,22 @@
 package main
 
 import (
-	"fmt"
-	"log"
-	"os"
 	"Go2/domain"
 	"Go2/handlers"
 	"Go2/model"
 	"Go2/repository/postgresql"
 	"Go2/repository/redis"
+	"fmt"
+	"log"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
 
 	redisClient "github.com/redis/go-redis/v9"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	"Go2/middlewares"
 )
 
 func main() {
@@ -47,9 +49,10 @@ func main() {
 	customerRepo := postgresql.NewCustomerRepo(DB)
 	floorRepo := redis.NewFloorRepo(client)
 
-	service :=domain.NewDomainService(customerRepo, floorRepo)
+	service := domain.NewDomainService(customerRepo, floorRepo)
 
 	app := fiber.New()
+	app.Use(middlewares.RequestBodyLog)
 
 	app.Post("/", func(c *fiber.Ctx) error {
 
