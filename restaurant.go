@@ -4,6 +4,8 @@ import (
 	"Go2/domain"
 	"Go2/handlers"
 	"Go2/model"
+	userModel "Go2/domain/user"
+
 	"Go2/repository/postgresql"
 	"Go2/repository/redis"
 	"fmt"
@@ -17,6 +19,7 @@ import (
 	"gorm.io/gorm"
 
 	"Go2/middlewares"
+	
 )
 
 func main() {
@@ -41,6 +44,8 @@ func main() {
 		log.Fatal("Failed to connect to database", err)
 	}
 	DB.AutoMigrate(&model.Customer{})
+	DB.AutoMigrate(&userModel.User{})
+	
 
 	client := redisClient.NewClient(&redisClient.Options{
 		Addr: os.Getenv("REDIS_ADDR"),
