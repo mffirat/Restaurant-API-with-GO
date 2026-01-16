@@ -22,3 +22,4 @@ type FloorCount struct {
 	Floor3 int `json:"floor3"`
 	Total  int `json:"total"`
 }
+
