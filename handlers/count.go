@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	
-	
 	"Go2/domain"
 
 	"github.com/gofiber/fiber/v2"

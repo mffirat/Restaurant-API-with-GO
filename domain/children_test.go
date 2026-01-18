@@ -2,7 +2,7 @@ package domain
 
 import (
 	"testing"
-
+	"Go2/domain/user"
 	"Go2/model"
 )
 
@@ -23,10 +23,20 @@ func (f *fakeFloorRepo) IncreaseFloorCount(floor int) error   { return nil }
 func (f *fakeFloorRepo) DecreaseFloorCount(floor int) error   { return nil }
 func (f *fakeFloorRepo) GetFloorCount(floor int) (int, error) { return 0, nil }
 
+
+
+type fakeUserRepo struct{}
+
+func (f *fakeUserRepo) CreateUser(u *user.User) error {return nil}
+func (f *fakeUserRepo) GetByUsername(username string) (*user.User, error) {return nil, nil}
+
+
+
 func TestGetChildrenCount(t *testing.T) {
 	customerRepo := &fakeCustomerRepo{}
 	floorRepo := &fakeFloorRepo{}
-	service := NewDomainService(customerRepo, floorRepo)
+	userRepo := &fakeUserRepo{}
+	service := NewDomainService(customerRepo, floorRepo,userRepo)
 
 	total, err := service.GetChildrenCount("2025-11-11", "2025-11-12")
 	if err != nil {

@@ -1,6 +1,10 @@
 package domain
 
-import "Go2/model"
+import (
+	"Go2/domain/user"
+	"Go2/model"
+	
+)
 
 type CustomerRepoInterface interface {
 	CreateCustomer(c *model.Customer) error
@@ -15,3 +19,9 @@ type FloorRepoInterface interface {
 	DecreaseFloorCount(floor int) error
 	GetFloorCount(floor int) (int, error)
 }
+type UserRepoInterface interface {
+	CreateUser(u *user.User) error
+	GetByUsername(username string) (*user.User, error)
+}
+
+
