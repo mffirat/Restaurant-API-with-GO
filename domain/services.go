@@ -1,10 +1,12 @@
 package domain
 
 import (
-	"Go2/model"
-	"time"
 	"Go2/domain/user"
-	
+	"Go2/model"
+	"fmt"
+
+	"time"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -14,9 +16,7 @@ type DomainService struct {
 	userRepo     UserRepoInterface
 }
 
-
-
-func NewDomainService(customerRepo CustomerRepoInterface, floorRepo FloorRepoInterface,userRepo UserRepoInterface) *DomainService {
+func NewDomainService(customerRepo CustomerRepoInterface, floorRepo FloorRepoInterface, userRepo UserRepoInterface) *DomainService {
 	return &DomainService{
 		customerRepo: customerRepo,
 		floorRepo:    floorRepo,
@@ -68,6 +68,16 @@ func (s *DomainService) RegisterUser(username, password string) error {
 	}
 
 	return s.userRepo.CreateUser(u)
+}
+func (s *DomainService) LoginUser(username, password string) error {
+	user, err := s.userRepo.GetByUsername(username)
+	if err != nil {
+		return fmt.Errorf("Invalid Entrance")
+	}
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+		return fmt.Errorf("Invalid Entrance")
+	}
+	return nil
 }
 
 func (s *DomainService) GetCounts() (model.FloorCount, error) {
