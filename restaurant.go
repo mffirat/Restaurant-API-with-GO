@@ -2,9 +2,9 @@ package main
 
 import (
 	"Go2/domain"
+	userModel "Go2/domain/user"
 	"Go2/handlers"
 	"Go2/model"
-	userModel "Go2/domain/user"
 
 	"Go2/repository/postgresql"
 	"Go2/repository/redis"
@@ -19,7 +19,6 @@ import (
 	"gorm.io/gorm"
 
 	"Go2/middlewares"
-	
 )
 
 func main() {
@@ -53,8 +52,9 @@ func main() {
 
 	customerRepo := postgresql.NewCustomerRepo(DB)
 	floorRepo := redis.NewFloorRepo(client)
+	userRepo :=postgresql.NewUserRepo(DB)
 
-	service := domain.NewDomainService(customerRepo, floorRepo)
+	service := domain.NewDomainService(customerRepo, floorRepo,userRepo,)
 
 	app := fiber.New()
 	app.Use(middlewares.RequestBodyLog)
@@ -62,6 +62,9 @@ func main() {
 	app.Post("/", func(c *fiber.Ctx) error {
 
 		return handlers.UpdateHandler(c, service)
+	})
+	app.Post("/register",func(c *fiber.Ctx)error{
+		return handlers.RegisterHandler(c,service)
 	})
 	app.Get("/count", func(c *fiber.Ctx) error {
 		return handlers.CountHandler(c, service)

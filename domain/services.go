@@ -3,19 +3,26 @@ package domain
 import (
 	"Go2/model"
 	"time"
+	"Go2/domain/user"
+	
+	"golang.org/x/crypto/bcrypt"
 )
+
 type DomainService struct {
 	customerRepo CustomerRepoInterface
 	floorRepo    FloorRepoInterface
+	userRepo     UserRepoInterface
 }
 
-func NewDomainService(customerRepo CustomerRepoInterface, floorRepo FloorRepoInterface) *DomainService {
+
+
+func NewDomainService(customerRepo CustomerRepoInterface, floorRepo FloorRepoInterface,userRepo UserRepoInterface) *DomainService {
 	return &DomainService{
 		customerRepo: customerRepo,
 		floorRepo:    floorRepo,
+		userRepo:     userRepo,
 	}
 }
-
 
 func (s *DomainService) EnterCustomer(gender, ageGroup string, floor int) (*model.Customer, error) {
 	customer := &model.Customer{
@@ -48,7 +55,20 @@ func (s *DomainService) ExitCustomer(id uint, payment float64) error {
 	}
 	return s.floorRepo.DecreaseFloorCount(customer.Floor)
 }
+func (s *DomainService) RegisterUser(username, password string) error {
+	hashed, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
 
+	u := &user.User{
+		Username: username,
+		Password: string(hashed),
+		Role:     "user",
+	}
+
+	return s.userRepo.CreateUser(u)
+}
 
 func (s *DomainService) GetCounts() (model.FloorCount, error) {
 	f1, err := s.floorRepo.GetFloorCount(1)
