@@ -44,7 +44,6 @@ func main() {
 	}
 	DB.AutoMigrate(&model.Customer{})
 	DB.AutoMigrate(&userModel.User{})
-	
 
 	client := redisClient.NewClient(&redisClient.Options{
 		Addr: os.Getenv("REDIS_ADDR"),
@@ -52,9 +51,9 @@ func main() {
 
 	customerRepo := postgresql.NewCustomerRepo(DB)
 	floorRepo := redis.NewFloorRepo(client)
-	userRepo :=postgresql.NewUserRepo(DB)
+	userRepo := postgresql.NewUserRepo(DB)
 
-	service := domain.NewDomainService(customerRepo, floorRepo,userRepo,)
+	service := domain.NewDomainService(customerRepo, floorRepo, userRepo)
 
 	app := fiber.New()
 	app.Use(middlewares.RequestBodyLog)
@@ -63,8 +62,11 @@ func main() {
 
 		return handlers.UpdateHandler(c, service)
 	})
-	app.Post("/register",func(c *fiber.Ctx)error{
-		return handlers.RegisterHandler(c,service)
+	app.Post("/register", func(c *fiber.Ctx) error {
+		return handlers.RegisterHandler(c, service)
+	})
+	app.Post("/login", func(c *fiber.Ctx) error {
+		return handlers.LoginHandler(c, service)
 	})
 	app.Get("/count", func(c *fiber.Ctx) error {
 		return handlers.CountHandler(c, service)
