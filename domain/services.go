@@ -4,10 +4,10 @@ import (
 	"Go2/domain/user"
 	"Go2/model"
 	"fmt"
+	"os"
 
 	"time"
 
-	
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -85,7 +85,10 @@ func (s *DomainService) LoginUser(username, password string) (string, error) {
 		"exp": time.Now().Add(24*time.Hour).Unix(),
 	}
 	token :=jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	secret:= []byte("mf-secret-key")
+	secret:= []byte(os.Getenv("JWT_SECRET"))
+	if len(secret) == 0 {
+	return "", fmt.Errorf("JWT_SECRET not set")
+}
 	signedToken,err :=token.SignedString(secret)
 	if err !=nil{
 		return "",err
