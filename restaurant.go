@@ -71,13 +71,13 @@ func main() {
 	app.Get("/count", func(c *fiber.Ctx) error {
 		return handlers.CountHandler(c, service)
 	})
-	app.Get("/total_customers", func(c *fiber.Ctx) error {
+	app.Get("/total_customers", middlewares.JWTAuth("admin", "user"), func(c *fiber.Ctx) error {
 		return handlers.TotalCustomersHandler(c, service)
 	})
-	app.Get("/children", func(c *fiber.Ctx) error {
+	app.Get("/children", middlewares.JWTAuth("admin", "user"), func(c *fiber.Ctx) error {
 		return handlers.ChildrenHandler(c, service)
 	})
-	app.Get("/total_income", func(c *fiber.Ctx) error {
+	app.Get("/total_income", middlewares.JWTAuth("admin"), func(c *fiber.Ctx) error {
 		return handlers.TotalIncomeHandler(c, service)
 	})
 
