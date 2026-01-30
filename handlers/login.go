@@ -23,12 +23,13 @@ func LoginHandler(c *fiber.Ctx, service *domain.DomainService) error {
 			"error": "username or password Can not be empty",
 		})
 	}
-	if err := service.LoginUser(rq.Username, rq.Password); err != nil {
+	token, err := service.LoginUser(rq.Username, rq.Password)
+	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"error": "Invalid username or password",
 		})
 	}
 	return c.JSON(fiber.Map{
-		"message": "Login successful!",
+		"token": token,
 	})
 }
