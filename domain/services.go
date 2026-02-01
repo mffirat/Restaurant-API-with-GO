@@ -4,9 +4,11 @@ import (
 	"Go2/domain/user"
 	"Go2/model"
 	"fmt"
+	"os"
 
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -69,15 +71,29 @@ func (s *DomainService) RegisterUser(username, password string) error {
 
 	return s.userRepo.CreateUser(u)
 }
-func (s *DomainService) LoginUser(username, password string) error {
+func (s *DomainService) LoginUser(username, password string) (string, error) {
 	user, err := s.userRepo.GetByUsername(username)
 	if err != nil {
-		return fmt.Errorf("Invalid Entrance")
+		return "",fmt.Errorf("Invalid Entrance")
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		return fmt.Errorf("Invalid Entrance")
+		return "",fmt.Errorf("Invalid Entrance")
 	}
-	return nil
+	claims := jwt.MapClaims{
+		"username": user.Username,
+		"role": user.Role,
+		"exp": time.Now().Add(24*time.Hour).Unix(),
+	}
+	token :=jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	secret:= []byte(os.Getenv("JWT_SECRET"))
+	if len(secret) == 0 {
+	return "", fmt.Errorf("JWT_SECRET not set")
+}
+	signedToken,err :=token.SignedString(secret)
+	if err !=nil{
+		return "",err
+	}
+	return signedToken,nil
 }
 
 func (s *DomainService) GetCounts() (model.FloorCount, error) {
