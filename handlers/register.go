@@ -11,6 +11,16 @@ type RegisterRequest struct {
 	Password string `json:"password"`
 }
 
+// @Summary Register new user
+// @Description Create a new user account
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param data body handlers.RegisterRequest true "Register payload"
+// @Success 201 {object} map[string]string "User registered successfully"
+// @Failure 400 {object} map[string]string "Invalid request"
+// @Failure 500 {object} map[string]string "User could not be created"
+// @Router /register [post]
 func RegisterHandler(c *fiber.Ctx, service *domain.DomainService) error {
 	var rq RegisterRequest
 	if err := c.BodyParser(&rq); err != nil {

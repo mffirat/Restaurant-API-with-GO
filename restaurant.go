@@ -1,3 +1,12 @@
+// @title Go2 API
+// @version 1.0
+// @description Restaurant Management API
+// @host localhost:3000
+// @BasePath /
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 package main
 
 import (
@@ -19,17 +28,18 @@ import (
 	"gorm.io/gorm"
 
 	"Go2/middlewares"
+
 	"github.com/joho/godotenv"
+
+	_ "Go2/docs"
+
+	fiberSwagger "github.com/gofiber/swagger"
 )
 
-
 func main() {
-if err := godotenv.Load(); err != nil {
-	log.Println("No .env file found")
-}
-
-
-
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found")
+	}
 
 	host := os.Getenv("POSTGRES_HOST")
 	user := os.Getenv("POSTGRES_USER")
@@ -37,7 +47,6 @@ if err := godotenv.Load(); err != nil {
 	dbname := os.Getenv("POSTGRES_DB")
 	port := os.Getenv("POSTGRES_PORT")
 
-	
 	if host == "" || user == "" || password == "" || dbname == "" || port == "" {
 		log.Fatal("One or more required environment variables are not set")
 	}
@@ -68,6 +77,8 @@ if err := godotenv.Load(); err != nil {
 	app := fiber.New()
 	app.Use(middlewares.RequestBodyLog)
 
+	app.Get("/swagger/*", fiberSwagger.HandlerDefault)
+
 	app.Post("/", func(c *fiber.Ctx) error {
 
 		return handlers.UpdateHandler(c, service)
@@ -81,13 +92,13 @@ if err := godotenv.Load(); err != nil {
 	app.Get("/count", func(c *fiber.Ctx) error {
 		return handlers.CountHandler(c, service)
 	})
-	app.Get("/total_customers",middlewares.JWTAuth(), func(c *fiber.Ctx) error {
+	app.Get("/total_customers", middlewares.JWTAuth(), func(c *fiber.Ctx) error {
 		return handlers.TotalCustomersHandler(c, service)
 	})
-	app.Get("/children",middlewares.JWTAuth(), func(c *fiber.Ctx) error {
+	app.Get("/children", middlewares.JWTAuth(), func(c *fiber.Ctx) error {
 		return handlers.ChildrenHandler(c, service)
 	})
-	app.Get("/total_income",middlewares.OnlyAdmin(), func(c *fiber.Ctx) error {
+	app.Get("/total_income", middlewares.OnlyAdmin(), func(c *fiber.Ctx) error {
 		return handlers.TotalIncomeHandler(c, service)
 	})
 
