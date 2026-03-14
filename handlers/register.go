@@ -22,6 +22,7 @@ type RegisterRequest struct {
 // @Failure 500 {object} map[string]string "User could not be created"
 // @Router /register [post]
 func RegisterHandler(c *fiber.Ctx, service *domain.DomainService) error {
+	ctx:=c.UserContext()
 	var rq RegisterRequest
 	if err := c.BodyParser(&rq); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -33,7 +34,7 @@ func RegisterHandler(c *fiber.Ctx, service *domain.DomainService) error {
 			"error": "username or password Can not be empty",
 		})
 	}
-	if err := service.RegisterUser(rq.Username, rq.Password); err != nil {
+	if err := service.RegisterUser(ctx,rq.Username, rq.Password); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "user could not be created",
 		})

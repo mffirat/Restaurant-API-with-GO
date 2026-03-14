@@ -22,6 +22,8 @@ type LoginRequest struct {
 // @Failure 401 {object} map[string]string "Invalid username or password"
 // @Router /login [post]
 func LoginHandler(c *fiber.Ctx, service *domain.DomainService) error {
+	ctx := c.UserContext()
+
 	var rq LoginRequest
 	if err := c.BodyParser(&rq); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -33,7 +35,7 @@ func LoginHandler(c *fiber.Ctx, service *domain.DomainService) error {
 			"error": "username or password Can not be empty",
 		})
 	}
-	token, err := service.LoginUser(rq.Username, rq.Password)
+	token, err := service.LoginUser(ctx, rq.Username, rq.Password)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"error": "Invalid username or password",

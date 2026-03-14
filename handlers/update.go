@@ -9,6 +9,7 @@ import (
 )
 
 func UpdateHandler(c *fiber.Ctx, service *domain.DomainService) error {
+	ctx:=c.UserContext()
 
 	action := c.Query("action", "enter")
 	FloorStr, err := strconv.Atoi(c.Query("Floor", "1"))
@@ -19,7 +20,7 @@ func UpdateHandler(c *fiber.Ctx, service *domain.DomainService) error {
 	AgeGroup := c.Query("AgeGroup", "adult")
 
 	if action == "enter" {
-		customer, _ := service.EnterCustomer(Gender, AgeGroup, FloorStr)
+		customer, _ := service.EnterCustomer(ctx,Gender, AgeGroup, FloorStr)
 
 		return c.JSON(fiber.Map{
 			"message": "Customer entered",
@@ -30,7 +31,7 @@ func UpdateHandler(c *fiber.Ctx, service *domain.DomainService) error {
 	if action == "exit" {
 		id, _ := strconv.Atoi(c.Query("id", "0"))
 		payment, _ := strconv.ParseFloat(c.Query("Payment", "0"), 64)
-		if err := service.ExitCustomer(uint(id), payment); err != nil {
+		if err := service.ExitCustomer(ctx,uint(id), payment); err != nil {
 			return c.JSON(fiber.Map{"error": "could not exit"})
 		}
 		return c.JSON(fiber.Map{

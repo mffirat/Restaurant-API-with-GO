@@ -3,25 +3,25 @@ package domain
 import (
 	"Go2/domain/user"
 	"Go2/model"
-	
+	"context"
 )
 
 type CustomerRepoInterface interface {
-	CreateCustomer(c *model.Customer) error
-	UpdateCustomer(c model.Customer) error
-	GetCustomerByID(id uint) (model.Customer, error)
-	GetTotalCustomers(start, end string) (int64, error)
-	GetChildrenCount(start, end string) (int64, error)
-	GetTotalIncome(start, end string) (float64, error)
+	CreateCustomer(ctx context.Context,c *model.Customer) error
+	UpdateCustomer(ctx context.Context,c model.Customer) error
+	GetCustomerByID(ctx context.Context,id uint) (model.Customer, error)
+	GetTotalCustomers(ctx context.Context,start, end string) (int64, error)
+	GetChildrenCount(ctx context.Context,start, end string) (int64, error)
+	GetTotalIncome(ctx context.Context,start, end string) (float64, error)
 }
 type FloorRepoInterface interface {
-	IncreaseFloorCount(floor int) error
-	DecreaseFloorCount(floor int) error
-	GetFloorCount(floor int) (int, error)
+	IncreaseFloorCount(ctx context.Context,floor int) error
+	DecreaseFloorCount(ctx context.Context,floor int) error
+	GetFloorCount(ctx context.Context,floor int) (int, error)
 }
 type UserRepoInterface interface {
-	CreateUser(u *user.User) error
-	GetByUsername(username string) (*user.User, error)
+	CreateUser(ctx context.Context,u *user.User) error
+	GetByUsername(ctx context.Context,username string) (*user.User, error)
 }
 
 
