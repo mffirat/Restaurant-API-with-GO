@@ -22,7 +22,7 @@ func NewFloorRepo(client *redis.Client) *FloorRepo {
 }
 
 func (r *FloorRepo) IncreaseFloorCount(ctx context.Context, floor int) error {
-	ctx, span := tracing.Tracer.Start(ctx, "redis.IncreaseFloorCount")
+	ctx, span := tracing.StartSpan(ctx, "redis.IncreaseFloorCount")
 	defer span.End()
 
 	key := fmt.Sprintf("floor:%d", floor)
@@ -37,7 +37,7 @@ func (r *FloorRepo) IncreaseFloorCount(ctx context.Context, floor int) error {
 }
 
 func (r *FloorRepo) DecreaseFloorCount(ctx context.Context, floor int) error {
-	ctx, span := tracing.Tracer.Start(ctx, "redis.DecreaseFloorCount")
+	ctx, span := tracing.StartSpan(ctx, "redis.DecreaseFloorCount")
 	defer span.End()
 
 	key := fmt.Sprintf("floor:%d", floor)
@@ -52,7 +52,7 @@ func (r *FloorRepo) DecreaseFloorCount(ctx context.Context, floor int) error {
 }
 
 func (r *FloorRepo) GetFloorCount(ctx context.Context, floor int) (int, error) {
-	ctx, span := tracing.Tracer.Start(ctx, "redis.GetFloorCount")
+	ctx, span := tracing.StartSpan(ctx, "redis.GetFloorCount")
 	defer span.End()
 
 	key := fmt.Sprintf("floor:%d", floor)
@@ -70,7 +70,7 @@ func (r *FloorRepo) GetFloorCount(ctx context.Context, floor int) (int, error) {
 }
 
 func (r *FloorRepo) InitializeFloorCounts(ctx context.Context, totalFloors int) error {
-	ctx, span := tracing.Tracer.Start(ctx, "redis.InitializeFloorCounts")
+	ctx, span := tracing.StartSpan(ctx, "redis.InitializeFloorCounts")
 	defer span.End()
 	span.SetAttributes(attribute.Int("floors.total", totalFloors))
 

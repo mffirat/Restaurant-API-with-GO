@@ -20,7 +20,7 @@ func NewCustomerRepo(db *gorm.DB) *CustomerRepo {
 }
 
 func (r *CustomerRepo) CreateCustomer(ctx context.Context, c *model.Customer) error {
-	ctx, span := tracing.Tracer.Start(ctx, "postgres.CreateCustomer")
+	ctx, span := tracing.StartSpan(ctx, "postgres.CreateCustomer")
 	defer span.End()
 
 	if err := r.db.WithContext(ctx).Create(c).Error; err != nil {
@@ -33,7 +33,7 @@ func (r *CustomerRepo) CreateCustomer(ctx context.Context, c *model.Customer) er
 }
 
 func (r *CustomerRepo) UpdateCustomer(ctx context.Context, c model.Customer) error {
-	ctx, span := tracing.Tracer.Start(ctx, "postgres.UpdateCustomer")
+	ctx, span := tracing.StartSpan(ctx, "postgres.UpdateCustomer")
 	defer span.End()
 
 	span.SetAttributes(attribute.Int("customer.id", int(c.ID)))
@@ -46,7 +46,7 @@ func (r *CustomerRepo) UpdateCustomer(ctx context.Context, c model.Customer) err
 }
 
 func (r *CustomerRepo) GetCustomerByID(ctx context.Context, id uint) (model.Customer, error) {
-	ctx, span := tracing.Tracer.Start(ctx, "postgres.GetCustomerByID")
+	ctx, span := tracing.StartSpan(ctx, "postgres.GetCustomerByID")
 	defer span.End()
 
 	span.SetAttributes(attribute.Int("customer.id", int(id)))
@@ -60,7 +60,7 @@ func (r *CustomerRepo) GetCustomerByID(ctx context.Context, id uint) (model.Cust
 }
 
 func (r *CustomerRepo) GetTotalCustomers(ctx context.Context, start, end string) (int64, error) {
-	ctx, span := tracing.Tracer.Start(ctx, "postgres.GetTotalCustomers")
+	ctx, span := tracing.StartSpan(ctx, "postgres.GetTotalCustomers")
 	defer span.End()
 
 	span.SetAttributes(
@@ -79,7 +79,7 @@ func (r *CustomerRepo) GetTotalCustomers(ctx context.Context, start, end string)
 }
 
 func (r *CustomerRepo) GetChildrenCount(ctx context.Context, start, end string) (int64, error) {
-	ctx, span := tracing.Tracer.Start(ctx, "postgres.GetChildrenCount")
+	ctx, span := tracing.StartSpan(ctx, "postgres.GetChildrenCount")
 	defer span.End()
 
 	var count int64
@@ -94,7 +94,7 @@ func (r *CustomerRepo) GetChildrenCount(ctx context.Context, start, end string) 
 }
 
 func (r *CustomerRepo) GetTotalIncome(ctx context.Context, start, end string) (float64, error) {
-	ctx, span := tracing.Tracer.Start(ctx, "postgres.GetTotalIncome")
+	ctx, span := tracing.StartSpan(ctx, "postgres.GetTotalIncome")
 	defer span.End()
 
 	var total float64

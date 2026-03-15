@@ -31,7 +31,7 @@ func NewDomainService(customerRepo CustomerRepoInterface, floorRepo FloorRepoInt
 }
 
 func (s *DomainService) EnterCustomer(ctx context.Context,gender, ageGroup string, floor int) (*model.Customer, error) {
-	ctx, span := tracing.Tracer.Start(ctx, "service.EnterCustomer")
+	ctx, span := tracing.StartSpan(ctx, "service.EnterCustomer")
 	defer span.End()
 
 	span.SetAttributes(
@@ -56,7 +56,7 @@ func (s *DomainService) EnterCustomer(ctx context.Context,gender, ageGroup strin
 }
 
 func (s *DomainService) ExitCustomer(ctx context.Context,id uint, payment float64) error {
-	ctx, span := tracing.Tracer.Start(ctx, "service.ExitCustomer")
+	ctx, span := tracing.StartSpan(ctx, "service.ExitCustomer")
 	defer span.End()
 
 	span.SetAttributes(
@@ -77,7 +77,7 @@ func (s *DomainService) ExitCustomer(ctx context.Context,id uint, payment float6
 	return s.floorRepo.DecreaseFloorCount(ctx,customer.Floor)
 }
 func (s *DomainService) RegisterUser(ctx context.Context,username, password string) error {
-	ctx, span := tracing.Tracer.Start(ctx, "service.RegisterUser")
+	ctx, span := tracing.StartSpan(ctx, "service.RegisterUser")
 	defer span.End()
 
 	span.SetAttributes(attribute.String("user.username", username))
@@ -96,7 +96,7 @@ func (s *DomainService) RegisterUser(ctx context.Context,username, password stri
 	return s.userRepo.CreateUser(ctx,u)
 }
 func (s *DomainService) LoginUser(ctx context.Context,username, password string) (string, error) {
-	ctx, span := tracing.Tracer.Start(ctx, "service.LoginUser")
+	ctx, span := tracing.StartSpan(ctx, "service.LoginUser")
 	defer span.End()
 
 	span.SetAttributes(attribute.String("user.username", username))
@@ -126,7 +126,7 @@ func (s *DomainService) LoginUser(ctx context.Context,username, password string)
 }
 
 func (s *DomainService) GetCounts(ctx context.Context) (model.FloorCount, error) {
-	ctx, span := tracing.Tracer.Start(ctx, "service.GetCounts")
+	ctx, span := tracing.StartSpan(ctx, "service.GetCounts")
 	defer span.End()
 	f1, err := s.floorRepo.GetFloorCount(ctx,1)
 	if err != nil {
@@ -145,19 +145,19 @@ func (s *DomainService) GetCounts(ctx context.Context) (model.FloorCount, error)
 }
 
 func (s *DomainService) GetTotalCustomers(ctx context.Context,start, end string) (int64, error) {
-	ctx, span := tracing.Tracer.Start(ctx, "service.GetTotalCustomers")
+	ctx, span := tracing.StartSpan(ctx, "service.GetTotalCustomers")
 	defer span.End()
 	return s.customerRepo.GetTotalCustomers(ctx,start, end)
 }
 
 func (s *DomainService) GetChildrenCount(ctx context.Context,start, end string) (int64, error) {
-	ctx, span := tracing.Tracer.Start(ctx, "service.GetChildrenCount")
+	ctx, span := tracing.StartSpan(ctx, "service.GetChildrenCount")
 	defer span.End()
 	return s.customerRepo.GetChildrenCount(ctx,start, end)
 }
 
 func (s *DomainService) GetTotalIncome(ctx context.Context,start, end string) (float64, error) {
-	ctx, span := tracing.Tracer.Start(ctx, "service.GetTotalIncome")
+	ctx, span := tracing.StartSpan(ctx, "service.GetTotalIncome")
 	defer span.End()
 	return s.customerRepo.GetTotalIncome(ctx,start, end)
 }

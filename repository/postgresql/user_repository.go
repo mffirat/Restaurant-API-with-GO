@@ -19,7 +19,7 @@ func NewUserRepo(db *gorm.DB) *UserRepository {
 	return &UserRepository{db: db}
 }
 func (r *UserRepository) CreateUser(ctx context.Context, u *user.User) error {
-	ctx, span := tracing.Tracer.Start(ctx, "postgres.CreateUser")
+	ctx, span := tracing.StartSpan(ctx, "postgres.CreateUser")
 	defer span.End()
 
 	span.SetAttributes(attribute.String("user.username", u.Username))
@@ -32,7 +32,7 @@ func (r *UserRepository) CreateUser(ctx context.Context, u *user.User) error {
 }
 
 func (r *UserRepository) GetByUsername(ctx context.Context, username string) (*user.User, error) {
-	ctx, span := tracing.Tracer.Start(ctx, "postgres.GetByUsername")
+	ctx, span := tracing.StartSpan(ctx, "postgres.GetByUsername")
 	defer span.End()
 
 	span.SetAttributes(attribute.String("user.username", username))
