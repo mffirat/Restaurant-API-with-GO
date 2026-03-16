@@ -4,11 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"Go2/tracing"
-
 	"github.com/redis/go-redis/v9"
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/codes"
 )
 
 type FloorRepo struct {
@@ -22,57 +18,25 @@ func NewFloorRepo(client *redis.Client) *FloorRepo {
 }
 
 func (r *FloorRepo) IncreaseFloorCount(ctx context.Context, floor int) error {
-	ctx, span := tracing.StartSpan(ctx, "redis.IncreaseFloorCount")
-	defer span.End()
-
 	key := fmt.Sprintf("floor:%d", floor)
-	span.SetAttributes(attribute.String("redis.key", key))
-
-	if err := r.client.Incr(ctx, key).Err(); err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, err.Error())
-		return err
-	}
-	return nil
+	return r.client.Incr(ctx, key).Err()
 }
 
 func (r *FloorRepo) DecreaseFloorCount(ctx context.Context, floor int) error {
-	ctx, span := tracing.StartSpan(ctx, "redis.DecreaseFloorCount")
-	defer span.End()
-
 	key := fmt.Sprintf("floor:%d", floor)
-	span.SetAttributes(attribute.String("redis.key", key))
-
-	if err := r.client.Decr(ctx, key).Err(); err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, err.Error())
-		return err
-	}
-	return nil
+	return r.client.Decr(ctx, key).Err()
 }
 
 func (r *FloorRepo) GetFloorCount(ctx context.Context, floor int) (int, error) {
-	ctx, span := tracing.StartSpan(ctx, "redis.GetFloorCount")
-	defer span.End()
-
 	key := fmt.Sprintf("floor:%d", floor)
-	span.SetAttributes(attribute.String("redis.key", key))
-
 	val, err := r.client.Get(ctx, key).Int()
 	if err == redis.Nil {
 		return 0, nil
-	}
-	if err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, err.Error())
 	}
 	return val, err
 }
 
 func (r *FloorRepo) InitializeFloorCounts(ctx context.Context, totalFloors int) error {
-	ctx, span := tracing.StartSpan(ctx, "redis.InitializeFloorCounts")
-	defer span.End()
-	span.SetAttributes(attribute.Int("floors.total", totalFloors))
 
 	for i := 1; i <= totalFloors; i++ {
 		key := fmt.Sprintf("floor:%d", i)

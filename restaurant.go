@@ -36,7 +36,6 @@ import (
 
 	"context"
 
-	"github.com/gofiber/contrib/otelfiber"
 	fiberSwagger "github.com/gofiber/swagger"
 )
 
@@ -83,7 +82,7 @@ func main() {
 
 	app := fiber.New()
 	app.Use(middlewares.RequestBodyLog)
-	app.Use(otelfiber.Middleware())
+	app.Use(middlewares.SpanStarter())
 
 	app.Get("/swagger/*", fiberSwagger.HandlerDefault)
 

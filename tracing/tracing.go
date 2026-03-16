@@ -51,3 +51,9 @@ func InitTracer() func(context.Context) error {
 
 	return tp.Shutdown
 }
+func StartSpan(ctx context.Context, name string) (context.Context, trace.Span) {
+
+	ctx, span := Tracer.Start(ctx, name)
+
+	return ctx, span
+}
