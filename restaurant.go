@@ -1,7 +1,7 @@
 // @title Go2 API
 // @version 1.0
 // @description Restaurant Management API
-// @host localhost:3000
+// @host localhost:8000
 // @BasePath /
 
 // @securityDefinitions.apikey BearerAuth
@@ -14,6 +14,7 @@ import (
 	userModel "Go2/domain/user"
 	"Go2/handlers"
 	"Go2/model"
+	"Go2/tracing"
 
 	"Go2/repository/postgresql"
 	"Go2/repository/redis"
@@ -33,13 +34,18 @@ import (
 
 	_ "Go2/docs"
 
+	"context"
+
 	fiberSwagger "github.com/gofiber/swagger"
 )
 
 func main() {
+
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found")
 	}
+	shutdown := tracing.InitTracer()
+	defer shutdown(context.Background())
 
 	host := os.Getenv("POSTGRES_HOST")
 	user := os.Getenv("POSTGRES_USER")
@@ -76,6 +82,7 @@ func main() {
 
 	app := fiber.New()
 	app.Use(middlewares.RequestBodyLog)
+	app.Use(middlewares.SpanStarter())
 
 	app.Get("/swagger/*", fiberSwagger.HandlerDefault)
 
@@ -103,5 +110,4 @@ func main() {
 	})
 
 	log.Fatal(app.Listen(":8000"))
-
 }

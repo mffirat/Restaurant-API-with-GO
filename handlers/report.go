@@ -17,10 +17,11 @@ import (
 // @Failure 401 {object} map[string]string
 // @Router /total_customers [get]
 func TotalCustomersHandler(c *fiber.Ctx, service *domain.DomainService) error {
+	ctx:=c.UserContext()
 	startDate := c.Query("start")
 	endDate := c.Query("end")
 
-	count, err := service.GetTotalCustomers(startDate, endDate)
+	count, err := service.GetTotalCustomers(ctx,startDate, endDate)
 	if err != nil {
 		return c.JSON(fiber.Map{"error": "Internal Server Error"})
 	}
@@ -41,10 +42,11 @@ func TotalCustomersHandler(c *fiber.Ctx, service *domain.DomainService) error {
 // @Failure 403 {object} map[string]string
 // @Router /total_income [get]
 func ChildrenHandler(c *fiber.Ctx, service *domain.DomainService) error {
+	ctx:=c.UserContext()
 	startDate := c.Query("start")
 	endDate := c.Query("end")
 
-	count, err := service.GetChildrenCount(startDate, endDate)
+	count, err := service.GetChildrenCount(ctx,startDate, endDate)
 	if err != nil {
 		return c.JSON(fiber.Map{"error": "Internal Server Error"})
 	}
@@ -63,10 +65,11 @@ func ChildrenHandler(c *fiber.Ctx, service *domain.DomainService) error {
 // @Failure 401 {object} map[string]string
 // @Router /children [get]
 func TotalIncomeHandler(c *fiber.Ctx, service *domain.DomainService) error {
+	ctx:=c.UserContext()
 	startDate := c.Query("start")
 	endDate := c.Query("end")
 
-	total, err := service.GetTotalIncome(startDate, endDate)
+	total, err := service.GetTotalIncome(ctx,startDate, endDate)
 	if err != nil {
 		return c.JSON(fiber.Map{"error": "Internal Server Error"})
 	}

@@ -8,6 +8,8 @@ import (
 
 	"time"
 
+	"context"
+
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -26,7 +28,8 @@ func NewDomainService(customerRepo CustomerRepoInterface, floorRepo FloorRepoInt
 	}
 }
 
-func (s *DomainService) EnterCustomer(gender, ageGroup string, floor int) (*model.Customer, error) {
+func (s *DomainService) EnterCustomer(ctx context.Context, gender, ageGroup string, floor int) (*model.Customer, error) {
+
 	customer := &model.Customer{
 		Gender:    gender,
 		AgeGroup:  ageGroup,
@@ -34,17 +37,18 @@ func (s *DomainService) EnterCustomer(gender, ageGroup string, floor int) (*mode
 		Payment:   0,
 		EnteredAt: time.Now(),
 	}
-	if err := s.customerRepo.CreateCustomer(customer); err != nil {
+	if err := s.customerRepo.CreateCustomer(ctx, customer); err != nil {
 		return nil, err
 	}
-	if err := s.floorRepo.IncreaseFloorCount(floor); err != nil {
+	if err := s.floorRepo.IncreaseFloorCount(ctx, floor); err != nil {
 		return nil, err
 	}
 	return customer, nil
 }
 
-func (s *DomainService) ExitCustomer(id uint, payment float64) error {
-	customer, err := s.customerRepo.GetCustomerByID(id)
+func (s *DomainService) ExitCustomer(ctx context.Context, id uint, payment float64) error {
+
+	customer, err := s.customerRepo.GetCustomerByID(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -52,12 +56,13 @@ func (s *DomainService) ExitCustomer(id uint, payment float64) error {
 	customer.Payment = payment
 	customer.ExitedAt = &now
 
-	if err := s.customerRepo.UpdateCustomer(customer); err != nil {
+	if err := s.customerRepo.UpdateCustomer(ctx, customer); err != nil {
 		return err
 	}
-	return s.floorRepo.DecreaseFloorCount(customer.Floor)
+	return s.floorRepo.DecreaseFloorCount(ctx, customer.Floor)
 }
-func (s *DomainService) RegisterUser(username, password string) error {
+func (s *DomainService) RegisterUser(ctx context.Context, username, password string) error {
+
 	hashed, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
@@ -69,43 +74,45 @@ func (s *DomainService) RegisterUser(username, password string) error {
 		Role:     "user",
 	}
 
-	return s.userRepo.CreateUser(u)
+	return s.userRepo.CreateUser(ctx, u)
 }
-func (s *DomainService) LoginUser(username, password string) (string, error) {
-	user, err := s.userRepo.GetByUsername(username)
+func (s *DomainService) LoginUser(ctx context.Context, username, password string) (string, error) {
+
+	user, err := s.userRepo.GetByUsername(ctx, username)
 	if err != nil {
-		return "",fmt.Errorf("Invalid Entrance")
+		return "", fmt.Errorf("Invalid Entrance")
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		return "",fmt.Errorf("Invalid Entrance")
+		return "", fmt.Errorf("Invalid Entrance")
 	}
 	claims := jwt.MapClaims{
 		"username": user.Username,
-		"role": user.Role,
-		"exp": time.Now().Add(24*time.Hour).Unix(),
+		"role":     user.Role,
+		"exp":      time.Now().Add(24 * time.Hour).Unix(),
 	}
-	token :=jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	secret:= []byte(os.Getenv("JWT_SECRET"))
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	secret := []byte(os.Getenv("JWT_SECRET"))
 	if len(secret) == 0 {
-	return "", fmt.Errorf("JWT_SECRET not set")
-}
-	signedToken,err :=token.SignedString(secret)
-	if err !=nil{
-		return "",err
+		return "", fmt.Errorf("JWT_SECRET not set")
 	}
-	return signedToken,nil
+	signedToken, err := token.SignedString(secret)
+	if err != nil {
+		return "", err
+	}
+	return signedToken, nil
 }
 
-func (s *DomainService) GetCounts() (model.FloorCount, error) {
-	f1, err := s.floorRepo.GetFloorCount(1)
+func (s *DomainService) GetCounts(ctx context.Context) (model.FloorCount, error) {
+
+	f1, err := s.floorRepo.GetFloorCount(ctx, 1)
 	if err != nil {
 		return model.FloorCount{}, err
 	}
-	f2, err := s.floorRepo.GetFloorCount(2)
+	f2, err := s.floorRepo.GetFloorCount(ctx, 2)
 	if err != nil {
 		return model.FloorCount{}, err
 	}
-	f3, err := s.floorRepo.GetFloorCount(3)
+	f3, err := s.floorRepo.GetFloorCount(ctx, 3)
 	if err != nil {
 		return model.FloorCount{}, err
 	}
@@ -113,14 +120,17 @@ func (s *DomainService) GetCounts() (model.FloorCount, error) {
 	return model.FloorCount{Floor1: f1, Floor2: f2, Floor3: f3, Total: total}, nil
 }
 
-func (s *DomainService) GetTotalCustomers(start, end string) (int64, error) {
-	return s.customerRepo.GetTotalCustomers(start, end)
+func (s *DomainService) GetTotalCustomers(ctx context.Context, start, end string) (int64, error) {
+
+	return s.customerRepo.GetTotalCustomers(ctx, start, end)
 }
 
-func (s *DomainService) GetChildrenCount(start, end string) (int64, error) {
-	return s.customerRepo.GetChildrenCount(start, end)
+func (s *DomainService) GetChildrenCount(ctx context.Context, start, end string) (int64, error) {
+
+	return s.customerRepo.GetChildrenCount(ctx, start, end)
 }
 
-func (s *DomainService) GetTotalIncome(start, end string) (float64, error) {
-	return s.customerRepo.GetTotalIncome(start, end)
+func (s *DomainService) GetTotalIncome(ctx context.Context, start, end string) (float64, error) {
+
+	return s.customerRepo.GetTotalIncome(ctx, start, end)
 }

@@ -16,7 +16,8 @@ import (
 // @Router /count [get]
 func CountHandler(c *fiber.Ctx, service *domain.DomainService) error {
 
-	counts, err := service.GetCounts()
+	ctx:=c.UserContext()
+	counts, err := service.GetCounts(ctx)
 	if err != nil {
 		return c.JSON(fiber.Map{"error": "Floor counts couldn't get"})
 	}
