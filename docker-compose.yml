@@ -35,3 +35,10 @@ services:
    ports:
     - "16686:16686"
     - "4318:4318"
+
+
+  k6:
+    image: grafana/k6
+    volumes:
+      - ./test:/scripts
+   
