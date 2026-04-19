@@ -11,11 +11,11 @@ type fakeCustomerRepo struct{}
 
 func (f *fakeCustomerRepo) CreateCustomer(ctx context.Context,c *model.Customer) error { return nil }
 func (f *fakeCustomerRepo) UpdateCustomer(ctx context.Context,c model.Customer) error  { return nil }
-func (f *fakeCustomerRepo) GetCustomerByID(ctx context.Context,id uint) (model.Customer, error) {return model.Customer{}, nil}
+func (f *fakeCustomerRepo) GetCustomerByID(ctx context.Context,tenantID uint,id uint) (model.Customer, error) {return model.Customer{}, nil}
 
-func (f *fakeCustomerRepo) GetTotalCustomers(ctx context.Context,start, end string) (int64, error) { return 0, nil }
-func (f *fakeCustomerRepo) GetChildrenCount(ctx context.Context,start, end string) (int64, error)  { return 5, nil }
-func (f *fakeCustomerRepo) GetTotalIncome(ctx context.Context,start, end string) (float64, error)  { return 0, nil }
+func (f *fakeCustomerRepo) GetTotalCustomers(ctx context.Context,tenantID uint,start, end string) (int64, error) { return 0, nil }
+func (f *fakeCustomerRepo) GetChildrenCount(ctx context.Context,tenantID uint,start, end string) (int64, error)  { return 5, nil }
+func (f *fakeCustomerRepo) GetTotalIncome(ctx context.Context,tenantID uint,start, end string) (float64, error)  { return 0, nil }
 
 
 type fakeFloorRepo struct{}
@@ -40,7 +40,7 @@ func TestGetChildrenCount(t *testing.T) {
 	service := NewDomainService(customerRepo, floorRepo,userRepo)
 
 	ctx:=context.Background()
-	total, err := service.GetChildrenCount(ctx,"2025-11-11", "2025-11-12")
+	total, err := service.GetChildrenCount(ctx,1,"2025-11-11", "2025-11-12")
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}

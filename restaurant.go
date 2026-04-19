@@ -86,7 +86,7 @@ func main() {
 
 	app.Get("/swagger/*", fiberSwagger.HandlerDefault)
 
-	app.Post("/", func(c *fiber.Ctx) error {
+	app.Post("/",middlewares.JWTAuth(), func(c *fiber.Ctx) error {
 
 		return handlers.UpdateHandler(c, service)
 	})
