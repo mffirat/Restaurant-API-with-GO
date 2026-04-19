@@ -9,6 +9,7 @@ import (
 type RegisterRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+	TenantID uint   `json:"tenant_id"`
 }
 
 // @Summary Register new user
@@ -34,7 +35,12 @@ func RegisterHandler(c *fiber.Ctx, service *domain.DomainService) error {
 			"error": "username or password Can not be empty",
 		})
 	}
-	if err := service.RegisterUser(ctx,rq.Username, rq.Password); err != nil {
+	if rq.TenantID == 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "tenant_id required", 
+		})
+	}
+	if err := service.RegisterUser(ctx,rq.TenantID,rq.Username, rq.Password); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "user could not be created",
 		})
