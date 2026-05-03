@@ -28,9 +28,10 @@ func NewDomainService(customerRepo CustomerRepoInterface, floorRepo FloorRepoInt
 	}
 }
 
-func (s *DomainService) EnterCustomer(ctx context.Context, gender, ageGroup string, floor int) (*model.Customer, error) {
+func (s *DomainService) EnterCustomer(ctx context.Context,tenantID uint, gender, ageGroup string, floor int) (*model.Customer, error) {
 
 	customer := &model.Customer{
+		TenantID:  tenantID,
 		Gender:    gender,
 		AgeGroup:  ageGroup,
 		Floor:     floor,
@@ -46,9 +47,9 @@ func (s *DomainService) EnterCustomer(ctx context.Context, gender, ageGroup stri
 	return customer, nil
 }
 
-func (s *DomainService) ExitCustomer(ctx context.Context, id uint, payment float64) error {
+func (s *DomainService) ExitCustomer(ctx context.Context,tenantID uint, id uint, payment float64) error {
 
-	customer, err := s.customerRepo.GetCustomerByID(ctx, id)
+	customer, err := s.customerRepo.GetCustomerByID(ctx,tenantID , id)
 	if err != nil {
 		return err
 	}
@@ -61,7 +62,7 @@ func (s *DomainService) ExitCustomer(ctx context.Context, id uint, payment float
 	}
 	return s.floorRepo.DecreaseFloorCount(ctx, customer.Floor)
 }
-func (s *DomainService) RegisterUser(ctx context.Context, username, password string) error {
+func (s *DomainService) RegisterUser(ctx context.Context,tenantID uint, username, password string) error {
 
 	hashed, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -69,6 +70,7 @@ func (s *DomainService) RegisterUser(ctx context.Context, username, password str
 	}
 
 	u := &user.User{
+		TenantID: tenantID,
 		Username: username,
 		Password: string(hashed),
 		Role:     "user",
@@ -88,6 +90,7 @@ func (s *DomainService) LoginUser(ctx context.Context, username, password string
 	claims := jwt.MapClaims{
 		"username": user.Username,
 		"role":     user.Role,
+		"tenant_id": user.TenantID,
 		"exp":      time.Now().Add(24 * time.Hour).Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -120,17 +123,17 @@ func (s *DomainService) GetCounts(ctx context.Context) (model.FloorCount, error)
 	return model.FloorCount{Floor1: f1, Floor2: f2, Floor3: f3, Total: total}, nil
 }
 
-func (s *DomainService) GetTotalCustomers(ctx context.Context, start, end string) (int64, error) {
+func (s *DomainService) GetTotalCustomers(ctx context.Context,tenantID uint, start, end string) (int64, error) {
 
-	return s.customerRepo.GetTotalCustomers(ctx, start, end)
+	return s.customerRepo.GetTotalCustomers(ctx,tenantID , start, end)
 }
 
-func (s *DomainService) GetChildrenCount(ctx context.Context, start, end string) (int64, error) {
+func (s *DomainService) GetChildrenCount(ctx context.Context,tenantID uint, start, end string) (int64, error) {
 
-	return s.customerRepo.GetChildrenCount(ctx, start, end)
+	return s.customerRepo.GetChildrenCount(ctx,tenantID , start, end)
 }
 
-func (s *DomainService) GetTotalIncome(ctx context.Context, start, end string) (float64, error) {
+func (s *DomainService) GetTotalIncome(ctx context.Context,tenantID uint, start, end string) (float64, error) {
 
-	return s.customerRepo.GetTotalIncome(ctx, start, end)
+	return s.customerRepo.GetTotalIncome(ctx,tenantID , start, end)
 }

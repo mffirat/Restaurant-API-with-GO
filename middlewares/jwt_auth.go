@@ -45,6 +45,7 @@ func JWTAuth() fiber.Handler {
 		}
 		c.Locals("username", claims["username"])
 		c.Locals("role", claims["role"])
+		c.Locals("tenant_id", uint(claims["tenant_id"].(float64)))
 		return c.Next()
 	}
 

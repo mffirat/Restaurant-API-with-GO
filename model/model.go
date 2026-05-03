@@ -8,6 +8,7 @@ import (
 
 type Customer struct {
 	gorm.Model
+	TenantID	  uint       `json:"tenant_id" gorm:"not null"`
 	Gender    string     `json:"gender"`
 	AgeGroup  string     `json:"age_group"`
 	Floor     int        `json:"floor"`

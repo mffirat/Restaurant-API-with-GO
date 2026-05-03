@@ -9,10 +9,10 @@ import (
 type CustomerRepoInterface interface {
 	CreateCustomer(ctx context.Context,c *model.Customer) error
 	UpdateCustomer(ctx context.Context,c model.Customer) error
-	GetCustomerByID(ctx context.Context,id uint) (model.Customer, error)
-	GetTotalCustomers(ctx context.Context,start, end string) (int64, error)
-	GetChildrenCount(ctx context.Context,start, end string) (int64, error)
-	GetTotalIncome(ctx context.Context,start, end string) (float64, error)
+	GetCustomerByID(ctx context.Context,tenantID uint,id uint) (model.Customer, error)
+	GetTotalCustomers(ctx context.Context,tenantID uint,start, end string) (int64, error)
+	GetChildrenCount(ctx context.Context,tenantID uint,start, end string) (int64, error)
+	GetTotalIncome(ctx context.Context,tenantID uint,start, end string) (float64, error)
 }
 type FloorRepoInterface interface {
 	IncreaseFloorCount(ctx context.Context,floor int) error

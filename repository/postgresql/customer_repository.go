@@ -17,39 +17,41 @@ func NewCustomerRepo(db *gorm.DB) *CustomerRepo {
 }
 
 func (r *CustomerRepo) CreateCustomer(ctx context.Context, c *model.Customer) error {
-	return r.db.Create(&c).Error
+	return r.db.Create(c).Error
 }
 
 func (r *CustomerRepo) UpdateCustomer(ctx context.Context, c model.Customer) error {
 	return r.db.Save(&c).Error
 }
 
-func (r *CustomerRepo) GetCustomerByID(ctx context.Context, id uint) (model.Customer, error) {
-	var c model.Customer
-	err := r.db.First(&c, id).Error
-	return c, err
+func (r *CustomerRepo) GetCustomerByID(ctx context.Context, tenantID uint, id uint) (model.Customer, error) {
+    var c model.Customer
+    err := r.db.WithContext(ctx).
+        Where("tenant_id = ? AND id = ?", tenantID, id).  
+        First(&c).Error
+    return c, err
 }
 
-func (r *CustomerRepo) GetTotalCustomers(ctx context.Context, start, end string) (int64, error) {
+func (r *CustomerRepo) GetTotalCustomers(ctx context.Context,tenantID uint, start, end string) (int64, error) {
 	var count int64
-	err := r.db.Model(&model.Customer{}).
-		Where("created_at BETWEEN ? AND ?", start, end).
+	err := r.db.WithContext(ctx).Model(&model.Customer{}).
+		Where("tenant_id = ? AND created_at BETWEEN ? AND ?",tenantID , start, end).
 		Count(&count).Error
 	return count, err
 }
 
-func (r *CustomerRepo) GetChildrenCount(ctx context.Context, start, end string) (int64, error) {
+func (r *CustomerRepo) GetChildrenCount(ctx context.Context,tenantID uint, start, end string) (int64, error) {
 	var count int64
-	err := r.db.Model(&model.Customer{}).
-		Where("age_group = ? AND created_at BETWEEN ? AND ?", "child", start, end).
+	err := r.db.WithContext(ctx).Model(&model.Customer{}).
+		Where("tenant_id = ? AND age_group = ? AND created_at BETWEEN ? AND ?",tenantID , "child", start, end).
 		Count(&count).Error
 	return count, err
 }
 
-func (r *CustomerRepo) GetTotalIncome(ctx context.Context, start, end string) (float64, error) {
+func (r *CustomerRepo) GetTotalIncome(ctx context.Context,tenantID uint, start, end string) (float64, error) {
 	var total float64
-	err := r.db.Model(&model.Customer{}).
-		Where("exited_at BETWEEN ? AND ?", start, end).
+	err := r.db.WithContext(ctx).Model(&model.Customer{}).
+		Where("tenant_id = ? AND exited_at BETWEEN ? AND ?",tenantID , start, end).
 		Select("SUM(payment)").Scan(&total).Error
 	return total, err
 }
